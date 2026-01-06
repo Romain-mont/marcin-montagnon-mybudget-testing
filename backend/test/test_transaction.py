@@ -1,75 +1,142 @@
-from django.test import TestCase
-from django.contrib.auth.models import User
-from src.transaction import Transaction
+import unittest
 from datetime import date
 from decimal import Decimal
+from src.transaction import Transaction
 
 
-# =======================
-# Tests du Model Transaction
-# =======================
-
-class TransactionModelTest(TestCase):
-    """Tests pour le modèle Transaction"""
+class TestTransactionCreation(unittest.TestCase):
+    """TDD: Tests pour la création d'une Transaction"""
     
-    def setUp(self):
-        """Préparation des données de test"""
-        self.user = User.objects.create_user(
-            username='test_user',
-            password='testpass123'
-        )
-    
-    def test_create_transaction_valid(self):
-        """Test RED: Créer une transaction valide avec tous les champs requis"""
-        transaction = Transaction.objects.create(
-            user=self.user,
+    def test_create_simple_transaction(self):
+        """RED: Créer une transaction simple avec les données minimales"""
+        transaction = Transaction(
+            user_id=1,
             date=date(2026, 1, 6),
-            amount=Decimal('150.50'),
-            description='Courses supermarché',
+            amount=Decimal('50.00'),
             category='Alimentation',
             type='DEPENSE'
         )
         
-        self.assertEqual(transaction.user, self.user)
+        self.assertEqual(transaction.user_id, 1)
         self.assertEqual(transaction.date, date(2026, 1, 6))
-        self.assertEqual(transaction.amount, Decimal('150.50'))
-        self.assertEqual(transaction.description, 'Courses supermarché')
+        self.assertEqual(transaction.amount, Decimal('50.00'))
         self.assertEqual(transaction.category, 'Alimentation')
         self.assertEqual(transaction.type, 'DEPENSE')
-        self.assertIsNotNone(transaction.id)
     
-    def test_transaction_type_choices(self):
-        """Test RED: Valider que le type accepte uniquement REVENU ou DEPENSE"""
-        # Type valide: DEPENSE
-        transaction_depense = Transaction.objects.create(
-            user=self.user,
+    def test_transaction_with_description(self):
+        """RED: Créer une transaction avec une description"""
+        transaction = Transaction(
+            user_id=1,
+            date=date(2026, 1, 6),
+            amount=Decimal('50.00'),
+            category='Alimentation',
+            type='DEPENSE',
+            description='Courses supermarché'
+        )
+        
+        self.assertEqual(transaction.description, 'Courses supermarché')
+    
+    def test_transaction_has_unique_id(self):
+        """RED: Chaque transaction doit avoir un ID unique"""
+        trans1 = Transaction(
+            user_id=1,
             date=date.today(),
             amount=Decimal('50.00'),
-            category='Transport',
+            category='Test',
             type='DEPENSE'
         )
-        self.assertEqual(transaction_depense.type, 'DEPENSE')
         
-        # Type valide: REVENU
-        transaction_revenu = Transaction.objects.create(
-            user=self.user,
+        trans2 = Transaction(
+            user_id=1,
             date=date.today(),
-            amount=Decimal('2500.00'),
-            category='Salaire',
+            amount=Decimal('50.00'),
+            category='Test',
+            type='DEPENSE'
+        )
+        
+        self.assertIsNotNone(trans1.id)
+        self.assertIsNotNone(trans2.id)
+        self.assertNotEqual(trans1.id, trans2.id)
+
+
+class TestTransactionValidation(unittest.TestCase):
+    """TDD: Tests pour la validation des transactions"""
+    
+    def test_type_must_be_revenu_or_depense(self):
+        """RED: Le type doit être REVENU ou DEPENSE"""
+        # Type valide DEPENSE
+        trans_depense = Transaction(
+            user_id=1,
+            date=date.today(),
+            amount=Decimal('50.00'),
+            category='Test',
+            type='DEPENSE'
+        )
+        self.assertEqual(trans_depense.type, 'DEPENSE')
+        
+        # Type valide REVENU
+        trans_revenu = Transaction(
+            user_id=1,
+            date=date.today(),
+            amount=Decimal('50.00'),
+            category='Test',
             type='REVENU'
         )
-        self.assertEqual(transaction_revenu.type, 'REVENU')
+        self.assertEqual(trans_revenu.type, 'REVENU')
     
-    def test_transaction_str_method(self):
-        """Test RED: Vérifier la représentation string d'une transaction"""
-        transaction = Transaction.objects.create(
-            user=self.user,
+    def test_invalid_type_raises_error(self):
+        """RED: Un type invalide doit lever une ValueError"""
+        with self.assertRaises(ValueError):
+            Transaction(
+                user_id=1,
+                date=date.today(),
+                amount=Decimal('50.00'),
+                category='Test',
+                type='INVALID'
+            )
+    
+    def test_amount_must_be_positive(self):
+        """RED: Le montant doit être positif"""
+        with self.assertRaises(ValueError):
+            Transaction(
+                user_id=1,
+                date=date.today(),
+                amount=Decimal('-50.00'),
+                category='Test',
+                type='DEPENSE'
+            )
+    
+    def test_amount_cannot_be_zero(self):
+        """RED: Le montant ne peut pas être zéro"""
+        with self.assertRaises(ValueError):
+            Transaction(
+                user_id=1,
+                date=date.today(),
+                amount=Decimal('0.00'),
+                category='Test',
+                type='DEPENSE'
+            )
+
+
+class TestTransactionRepresentation(unittest.TestCase):
+    """TDD: Tests pour la représentation d'une Transaction"""
+    
+    def test_str_representation(self):
+        """RED: Représentation string lisible d'une transaction"""
+        transaction = Transaction(
+            user_id=1,
             date=date(2026, 1, 6),
-            amount=Decimal('100.00'),
-            description='Test transaction',
-            category='Loisirs',
+            amount=Decimal('50.00'),
+            category='Alimentation',
             type='DEPENSE'
         )
         
-        expected_str = f"{transaction.date} - DEPENSE - 100.00€ - Loisirs"
-        self.assertEqual(str(transaction), expected_str)
+        result = str(transaction)
+        self.assertIn('2026-01-06', result)
+        self.assertIn('DEPENSE', result)
+        self.assertIn('50.00', result)
+        self.assertIn('Alimentation', result)
+
+
+if __name__ == '__main__':
+    unittest.main()
