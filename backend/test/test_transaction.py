@@ -68,6 +68,17 @@ class TestTransactionCreation(unittest.TestCase):
                 category='Test',
                 type='INVALID'
             )
+    
+    def test_amount_must_be_positive(self):
+        """Le montant doit être positif"""
+        with self.assertRaises(ValueError):
+            Transaction(
+                user_id=1,
+                date=date.today(),
+                amount=Decimal('-50.00'),
+                category='Test',
+                type='DEPENSE'
+            )
 
 
 if __name__ == '__main__':
