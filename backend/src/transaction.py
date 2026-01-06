@@ -6,6 +6,8 @@ from typing import Optional
 class Transaction:
     """Modèle pour représenter une transaction financière"""
     
+    _id_counter = 0
+    
     def __init__(
         self,
         user_id: int,
@@ -15,6 +17,8 @@ class Transaction:
         type: str,
         description: Optional[str] = None
     ):
+        Transaction._id_counter += 1
+        self.id = Transaction._id_counter
         self.user_id = user_id
         self.date = date
         self.amount = amount
