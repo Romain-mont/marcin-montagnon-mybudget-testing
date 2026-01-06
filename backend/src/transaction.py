@@ -20,6 +20,9 @@ class Transaction:
         if type not in ['REVENU', 'DEPENSE']:
             raise ValueError(f"Le type doit être 'REVENU' ou 'DEPENSE', reçu: {type}")
         
+        if amount <= 0:
+            raise ValueError(f"Le montant doit être positif, reçu: {amount}")
+        
         Transaction._id_counter += 1
         self.id = Transaction._id_counter
         self.user_id = user_id
