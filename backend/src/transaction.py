@@ -17,6 +17,9 @@ class Transaction:
         type: str,
         description: Optional[str] = None
     ):
+        if type not in ['REVENU', 'DEPENSE']:
+            raise ValueError(f"Le type doit être 'REVENU' ou 'DEPENSE', reçu: {type}")
+        
         Transaction._id_counter += 1
         self.id = Transaction._id_counter
         self.user_id = user_id
