@@ -22,6 +22,28 @@ class TestTransactionCreation(unittest.TestCase):
         self.assertEqual(transaction.amount, Decimal('50.00'))
         self.assertEqual(transaction.category, 'Alimentation')
         self.assertEqual(transaction.type, 'DEPENSE')
+    
+    def test_transaction_has_unique_id(self):
+        """RED: Chaque transaction doit avoir un ID unique"""
+        trans1 = Transaction(
+            user_id=1,
+            date=date.today(),
+            amount=Decimal('50.00'),
+            category='Test',
+            type='DEPENSE'
+        )
+        
+        trans2 = Transaction(
+            user_id=1,
+            date=date.today(),
+            amount=Decimal('50.00'),
+            category='Test',
+            type='DEPENSE'
+        )
+        
+        self.assertIsNotNone(trans1.id)
+        self.assertIsNotNone(trans2.id)
+        self.assertNotEqual(trans1.id, trans2.id)
 
 
 if __name__ == '__main__':
