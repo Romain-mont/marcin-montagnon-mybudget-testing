@@ -49,3 +49,17 @@ def calculate_budget_percentage(connection, category, period):
     
     # 3. Calcul
     return (total_spent / budget_total) * 100
+
+def check_budget_alert(connection, category, period):
+    """
+    Renvoie un message d'alerte si le budget est consommé à >= 80%.
+    Sinon, renvoie None.
+    """
+    # 1. On réutilise la logique existante (DRY - Don't Repeat Yourself)
+    percent = calculate_budget_percentage(connection, category, period)
+    
+    # 2. Vérification du seuil critique (80%)
+    if percent >= 80.0:
+        return f"Attention : vous avez consommé {percent}% de votre budget {category}"
+    
+    return None
