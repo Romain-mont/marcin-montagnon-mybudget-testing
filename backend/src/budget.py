@@ -18,7 +18,7 @@ def calculate_remaining_budget(connection, category, period):
     budget_total = budget_row[0]
     
     # 2. On calcule la somme des DÉPENSES pour cette catégorie
-    # (Note: On filtre par type='DEPENSE' pour ne pas compter les revenus)
+   
     sql_expenses = "SELECT SUM(amount) FROM transactions WHERE category = ? AND type = 'DEPENSE'"
     cursor.execute(sql_expenses, (category,))
     expense_result = cursor.fetchone()
