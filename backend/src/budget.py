@@ -55,7 +55,7 @@ def check_budget_alert(connection, category, period):
     Renvoie un message d'alerte si le budget est consommé à >= 80%.
     Sinon, renvoie None.
     """
-    # 1. On réutilise la logique existante (DRY - Don't Repeat Yourself)
+    # 1. On réutilise la logique existante 
     percent = calculate_budget_percentage(connection, category, period)
     
     # 2. Vérification du seuil critique (80%)

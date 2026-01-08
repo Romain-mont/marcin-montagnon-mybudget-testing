@@ -1,6 +1,6 @@
 import unittest
 import sqlite3
-from src.budget import add_budget, calculate_remaining_budget, calculate_budget_percentage
+from src.budget import add_budget, calculate_remaining_budget, calculate_budget_percentage, check_budget_alert
 
 class TestBudget(unittest.TestCase):
     
@@ -19,7 +19,7 @@ class TestBudget(unittest.TestCase):
         ''')
 
         # 2. On crée la table TRANSACTIONS (Simulée pour ton test)
-        # C'est nécessaire pour tester tes calculs sans attendre ton collègue
+     
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,7 +46,7 @@ class TestBudget(unittest.TestCase):
         add_budget(self.conn, "Alimentation", 500.0, "2026-01")
         
         # And : Des dépenses existantes dans cette catégorie (Total = 150€)
-        # On insère directement en SQL pour simuler que l'autre dev a fait son boulot
+
         self.cursor.execute("INSERT INTO transactions (amount, category, type) VALUES (100.0, 'Alimentation', 'DEPENSE')")
         self.cursor.execute("INSERT INTO transactions (amount, category, type) VALUES (50.0, 'Alimentation', 'DEPENSE')")
         self.conn.commit()
@@ -58,7 +58,7 @@ class TestBudget(unittest.TestCase):
         self.assertEqual(remaining, 350.0)
     def test_calculate_percentage(self):
         # Cas 1 : Normal (50% consommé)
-        # On a déjà inséré un budget de 500 et des dépenses de 150 dans le test précédent.
+        
         # Pour ce test, on repart de zéro pour être propre.
         
         # Nettoyage des tables pour ce test spécifique
@@ -76,7 +76,7 @@ class TestBudget(unittest.TestCase):
         # Cas 2 : Budget à 0 (pour éviter le crash)
         add_budget(self.conn, "Vide", 0.0, "2026-03")
         percent = calculate_budget_percentage(self.conn, "Vide", "2026-03")
-        self.assertEqual(percent, 0.0) # Ou 100.0, selon ta logique, mais 0 est plus sûr
+        self.assertEqual(percent, 0.0) 
     
     def test_check_budget_alert_threshold(self):
         # Given : Budget 100€, Dépenses actuelles 75€
@@ -89,9 +89,7 @@ class TestBudget(unittest.TestCase):
         self.conn.commit()
         
         # When : On vérifie l'alerte APRES avoir ajouté 10€ virtuellement (ou si on teste l'état actuel)
-        # Disons qu'on ajoute 10€ -> Total 85€ -> 85%
-        # Note: Pour simplifier, on teste l'état actuel de la base.
-        # Donc on ajoute d'abord la dépense de 10€ en base.
+        
         self.cursor.execute("INSERT INTO transactions (amount, category, type) VALUES (10.0, 'Resto', 'DEPENSE')")
         self.conn.commit()
         
