@@ -77,6 +77,39 @@ class TestBudget(unittest.TestCase):
         add_budget(self.conn, "Vide", 0.0, "2026-03")
         percent = calculate_budget_percentage(self.conn, "Vide", "2026-03")
         self.assertEqual(percent, 0.0) # Ou 100.0, selon ta logique, mais 0 est plus sûr
+    
+    def test_check_budget_alert_threshold(self):
+        # Given : Budget 100€, Dépenses actuelles 75€
+        self.cursor.execute("DELETE FROM budgets")
+        self.cursor.execute("DELETE FROM transactions")
+        
+        add_budget(self.conn, "Resto", 100.0, "2026-05")
+        # On insère 75€ de dépenses
+        self.cursor.execute("INSERT INTO transactions (amount, category, type) VALUES (75.0, 'Resto', 'DEPENSE')")
+        self.conn.commit()
+        
+        # When : On vérifie l'alerte APRES avoir ajouté 10€ virtuellement (ou si on teste l'état actuel)
+        # Disons qu'on ajoute 10€ -> Total 85€ -> 85%
+        # Note: Pour simplifier, on teste l'état actuel de la base.
+        # Donc on ajoute d'abord la dépense de 10€ en base.
+        self.cursor.execute("INSERT INTO transactions (amount, category, type) VALUES (10.0, 'Resto', 'DEPENSE')")
+        self.conn.commit()
+        
+        message = check_budget_alert(self.conn, "Resto", "2026-05")
+        
+        # Then
+        self.assertEqual(message, "Attention : vous avez consommé 85.0% de votre budget Resto")
+
+    def test_check_budget_no_alert(self):
+        # Given : Budget 100€, Dépenses 10€
+        add_budget(self.conn, "Resto", 100.0, "2026-06")
+        self.cursor.execute("INSERT INTO transactions (amount, category, type) VALUES (10.0, 'Resto', 'DEPENSE')")
+        self.conn.commit()
+        
+        message = check_budget_alert(self.conn, "Resto", "2026-06")
+        
+        # Then : Pas de message
+        self.assertIsNone(message)
 
 if __name__ == '__main__':
     unittest.main()
