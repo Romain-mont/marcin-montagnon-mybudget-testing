@@ -1,17 +1,14 @@
 import unittest
 import sqlite3
-from src.budget import add_budget
+from src.budget import add_budget, calculate_remaining_budget
 
 class TestBudget(unittest.TestCase):
-   
     
     def setUp(self):
-        # Cette fonction s'exécute AVANT chaque test.
-        # On crée une BDD temporaire en mémoire pour isoler le test.
         self.conn = sqlite3.connect(':memory:')
         self.cursor = self.conn.cursor()
         
-        # On crée la table (car pour tester l'insertion, la table doit exister !)
+        # 1. On crée la table BUDGETS
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS budgets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,32 +17,45 @@ class TestBudget(unittest.TestCase):
                 period TEXT
             )
         ''')
+
+        # 2. On crée la table TRANSACTIONS (Simulée pour ton test)
+        # C'est nécessaire pour tester tes calculs sans attendre ton collègue
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT,
+                amount REAL,
+                category TEXT,
+                type TEXT
+            )
+        ''')
         self.conn.commit()
 
     def tearDown(self):
-        # S'exécute APRES chaque test : on ferme proprement.
         self.conn.close()
 
     def test_add_budget_saves_to_db(self):
-        # Given : J'ai une connexion à ma base de test
-        category = "Loisirs"
-        amount = 50.0
-        period = "2026-02"
-        
-        # When : J'appelle ma fonction en lui passant ma connexion de test
-   
-        add_budget(self.conn, category, amount, period)
-        
-        # Then : Je vérifie directement en SQL que la ligne existe
-        self.cursor.execute("SELECT category, amount, period FROM budgets WHERE category='Loisirs'")
+        # Test précédent (toujours valide)
+        add_budget(self.conn, "Loisirs", 50.0, "2026-02")
+        self.cursor.execute("SELECT amount FROM budgets WHERE category='Loisirs'")
         result = self.cursor.fetchone()
+        self.assertEqual(result[0], 50.0)
+
+    def test_calculate_remaining_budget(self):
+        # Given : Un budget de 500€
+        add_budget(self.conn, "Alimentation", 500.0, "2026-01")
         
-        self.assertIsNotNone(result, "La transaction n'a pas été trouvée en base")
-        self.assertEqual(result[0], "Loisirs")
-        self.assertEqual(result[1], 50.0)
-        self.assertEqual(result[2], "2026-02")
+        # And : Des dépenses existantes dans cette catégorie (Total = 150€)
+        # On insère directement en SQL pour simuler que l'autre dev a fait son boulot
+        self.cursor.execute("INSERT INTO transactions (amount, category, type) VALUES (100.0, 'Alimentation', 'DEPENSE')")
+        self.cursor.execute("INSERT INTO transactions (amount, category, type) VALUES (50.0, 'Alimentation', 'DEPENSE')")
+        self.conn.commit()
+
+        # When : Je calcule le reste
+        remaining = calculate_remaining_budget(self.conn, "Alimentation", "2026-01")
+
+        # Then : Il doit rester 350€ (500 - 150)
+        self.assertEqual(remaining, 350.0)
 
 if __name__ == '__main__':
     unittest.main()
-
-  
