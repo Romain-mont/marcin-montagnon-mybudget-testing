@@ -1,5 +1,6 @@
 import unittest
 import sqlite3
+import os
 from fastapi.testclient import TestClient
 
 try:
@@ -10,11 +11,17 @@ except ImportError:
 class TestBudgetAPI(unittest.TestCase):
     
     def setUp(self):
+        
+        if os.path.exists('budget.db'):
+            os.remove('budget.db')
+
         if app:
             self.client = TestClient(app)
             
             # --- MISE EN PLACE DE LA BDD POUR LES TESTS ---
-            conn = sqlite3.connect('budget.db')
+            conn = sqlite3.connect('budget.db') 
+            
+            
             
             # 1. On s'assure que la table BUDGETS existe
             conn.execute('''
@@ -42,6 +49,11 @@ class TestBudgetAPI(unittest.TestCase):
             conn.close()
         else:
             self.fail("App non trouvée")
+  
+    def tearDown(self):
+        
+        if os.path.exists('budget.db'):
+            os.remove('budget.db')
 
     def test_create_budget_api(self):
         # Test 1 : Création 
