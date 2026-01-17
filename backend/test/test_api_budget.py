@@ -1,4 +1,5 @@
 import unittest
+import sqlite3
 from fastapi.testclient import TestClient
 
 try:
@@ -12,6 +13,20 @@ class TestBudgetAPI(unittest.TestCase):
         # On initialise le client de test uniquement si l'app existe
         if app:
             self.client = TestClient(app)
+            
+      
+            conn = sqlite3.connect('budget.db')
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS budgets (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    category TEXT,
+                    amount REAL,
+                    period TEXT
+                )
+            ''')
+            conn.commit()
+            conn.close()
+            # ---------------------------------------------------------------
         else:
             self.fail("Le fichier main.py ou l'application FastAPI n'est pas encore créée")
 
@@ -23,7 +38,7 @@ class TestBudgetAPI(unittest.TestCase):
             "period": "2026-03"
         }
         
-       
+        # When
         response = self.client.post("/budgets/", json=payload)
         
         # Then : Ça doit marcher (200 OK)
