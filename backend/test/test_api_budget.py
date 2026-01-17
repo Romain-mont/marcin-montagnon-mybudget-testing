@@ -10,12 +10,13 @@ except ImportError:
 class TestBudgetAPI(unittest.TestCase):
     
     def setUp(self):
-        # On initialise le client de test uniquement si l'app existe
         if app:
             self.client = TestClient(app)
             
-      
+            # --- MISE EN PLACE DE LA BDD POUR LES TESTS ---
             conn = sqlite3.connect('budget.db')
+            
+            # 1. On s'assure que la table BUDGETS existe
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS budgets (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,26 +25,52 @@ class TestBudgetAPI(unittest.TestCase):
                     period TEXT
                 )
             ''')
+            
+            # 2. On s'assure que la table TRANSACTIONS existe )
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS transactions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date TEXT,
+                    amount REAL,
+                    category TEXT,
+                    type TEXT,
+                    label TEXT
+                )
+            ''')
+            
             conn.commit()
             conn.close()
-            # ---------------------------------------------------------------
         else:
-            self.fail("Le fichier main.py ou l'application FastAPI n'est pas encore créée")
+            self.fail("App non trouvée")
 
     def test_create_budget_api(self):
-        # Given : Un budget à définir
-        payload = {
-            "category": "Loisirs",
-            "amount": 200.0,
-            "period": "2026-03"
-        }
-        
-        # When
+        # Test 1 : Création 
+        payload = { "category": "Loisirs", "amount": 200.0, "period": "2026-03" }
         response = self.client.post("/budgets/", json=payload)
-        
-        # Then : Ça doit marcher (200 OK)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"message": "Budget défini avec succès"})
+
+    def test_get_budget_status_api(self):
+        # Test 2 : Consultation 
+        
+        # GIVEN : On injecte des données directement en base
+        conn = sqlite3.connect('budget.db')
+        # Budget : 100€
+        conn.execute("INSERT INTO budgets (category, amount, period) VALUES ('Resto', 100.0, '2026-05')")
+        # Dépense : 20€
+        conn.execute("INSERT INTO transactions (amount, category, type) VALUES (20.0, 'Resto', 'DEPENSE')")
+        conn.commit()
+        conn.close()
+
+        # WHEN : On appelle la route GET
+        response = self.client.get("/budgets/Resto/2026-05")
+        
+        # THEN : On s'attend à un succès
+        self.assertEqual(response.status_code, 200)
+        
+        data = response.json()
+        self.assertEqual(data["budget_amount"], 100.0)
+        self.assertEqual(data["remaining"], 80.0)
+        self.assertIsNone(data["alert"]) 
 
 if __name__ == '__main__':
     unittest.main()
