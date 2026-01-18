@@ -84,3 +84,25 @@ def get_budget_status_route(category: str, period: str):
         }
     finally:
         conn.close()
+
+
+@app.get("/budgets/")
+def get_all_budgets_route():
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        # On récupère tout
+        cursor.execute("SELECT category, amount, period FROM budgets")
+        rows = cursor.fetchall()
+        
+        # On transforme le résultat SQL en liste de dictionnaires propre
+        results = []
+        for row in rows:
+            results.append({
+                "category": row[0], 
+                "amount": row[1],
+                "period": row[2]
+            })
+        return results
+    finally:
+        conn.close()
