@@ -1,10 +1,19 @@
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
 from src.budget import add_budget, calculate_remaining_budget, calculate_budget_percentage, check_budget_alert
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Modèle de données pour valider ce que l'utilisateur envoie
 class BudgetModel(BaseModel):
