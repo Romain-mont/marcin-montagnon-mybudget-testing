@@ -83,6 +83,23 @@ class TestBudgetAPI(unittest.TestCase):
         self.assertEqual(data["budget_amount"], 100.0)
         self.assertEqual(data["remaining"], 80.0)
         self.assertIsNone(data["alert"]) 
+    
+    def test_get_all_budgets(self):
+        # GIVEN : Deux budgets en base
+        conn = sqlite3.connect('budget.db')
+        conn.execute("INSERT INTO budgets (category, amount, period) VALUES ('Loisirs', 50.0, '2026-01')")
+        conn.execute("INSERT INTO budgets (category, amount, period) VALUES ('Courses', 150.0, '2026-01')")
+        conn.commit()
+        conn.close()
+
+        # WHEN : On demande la liste
+        response = self.client.get("/budgets/")
+
+        # THEN
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 2) 
+        self.assertEqual(data[0]["category"], "Loisirs")
 
 if __name__ == '__main__':
     unittest.main()
