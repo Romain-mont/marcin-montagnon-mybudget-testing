@@ -170,6 +170,43 @@ class TestTransactionRepository(unittest.TestCase):
         
         self.assertIsNotNone(retrieved)
         self.assertEqual(retrieved, transaction)
+    
+    def test_get_transactions_by_user(self):
+        """Lister toutes les transactions d'un utilisateur"""
+        trans1 = Transaction(
+            user_id=1,
+            date=date(2026, 1, 20),
+            amount=Decimal('50.00'),
+            category='Food',
+            type='DEPENSE'
+        )
+        
+        trans2 = Transaction(
+            user_id=1,
+            date=date(2026, 1, 21),
+            amount=Decimal('100.00'),
+            category='Transport',
+            type='DEPENSE'
+        )
+        
+        trans3 = Transaction(
+            user_id=2,
+            date=date(2026, 1, 20),
+            amount=Decimal('200.00'),
+            category='Salary',
+            type='REVENU'
+        )
+        
+        self.repo.save(trans1)
+        self.repo.save(trans2)
+        self.repo.save(trans3)
+        
+        user1_transactions = self.repo.get_by_user(1)
+        
+        self.assertEqual(len(user1_transactions), 2)
+        self.assertIn(trans1, user1_transactions)
+        self.assertIn(trans2, user1_transactions)
+        self.assertNotIn(trans3, user1_transactions)
 
 
 if __name__ == '__main__':
