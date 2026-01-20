@@ -31,4 +31,8 @@ class Transaction:
         self.category = category
         self.type = type
         self.description = description
+    
+    def __str__(self) -> str:
+        """Représentation lisible d'une transaction"""
+        return f"{self.date} - {self.type} - {self.amount} - {self.category}"
 
