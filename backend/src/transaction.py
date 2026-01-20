@@ -46,7 +46,15 @@ class Transaction:
 class TransactionRepository:
     """Repository pour persister les transactions"""
     
+    def __init__(self):
+        self.transactions = {}
+    
     def save(self, transaction: Transaction) -> int:
         """Sauvegarder une transaction et retourner son ID"""
+        self.transactions[transaction.id] = transaction
         return transaction.id
+    
+    def get(self, transaction_id: int) -> Transaction:
+        """Récupérer une transaction par son ID"""
+        return self.transactions.get(transaction_id)
 

@@ -154,6 +154,22 @@ class TestTransactionRepository(unittest.TestCase):
         
         self.assertIsNotNone(transaction_id)
         self.assertEqual(transaction.id, transaction_id)
+    
+    def test_get_transaction_by_id(self):
+        """Récupérer une transaction par son ID"""
+        transaction = Transaction(
+            user_id=1,
+            date=date(2026, 1, 20),
+            amount=Decimal('100.00'),
+            category='Groceries',
+            type='DEPENSE'
+        )
+        
+        self.repo.save(transaction)
+        retrieved = self.repo.get(transaction.id)
+        
+        self.assertIsNotNone(retrieved)
+        self.assertEqual(retrieved, transaction)
 
 
 if __name__ == '__main__':
