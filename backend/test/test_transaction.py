@@ -92,7 +92,7 @@ class TestTransactionCreation(unittest.TestCase):
             )
     
     def test_str_representation(self):
-        """RED: Représentation string lisible d'une transaction"""
+        """Représentation string lisible d'une transaction"""
         transaction = Transaction(
             user_id=1,
             date=date(2026, 1, 6),
@@ -106,6 +106,31 @@ class TestTransactionCreation(unittest.TestCase):
         self.assertIn('DEPENSE', result)
         self.assertIn('50.00', result)
         self.assertIn('Alimentation', result)
+    
+    def test_transaction_equality(self):
+        """Deux transactions sont égales si elles ont le même ID"""
+        trans = Transaction(
+            user_id=1,
+            date=date.today(),
+            amount=Decimal('50.00'),
+            category='Test',
+            type='DEPENSE'
+        )
+        
+        # Créer une deuxième transaction avec les mêmes données
+        trans2 = Transaction(
+            user_id=1,
+            date=date.today(),
+            amount=Decimal('50.00'),
+            category='Test',
+            type='DEPENSE'
+        )
+        
+        # Elles ne doivent pas être égales (IDs différents)
+        self.assertNotEqual(trans, trans2)
+        
+        # Une transaction est égale à elle-même
+        self.assertEqual(trans, trans)
 
 
 if __name__ == '__main__':

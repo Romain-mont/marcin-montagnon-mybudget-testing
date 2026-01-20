@@ -35,4 +35,10 @@ class Transaction:
     def __str__(self) -> str:
         """Représentation lisible d'une transaction"""
         return f"{self.date} - {self.type} - {self.amount} - {self.category}"
+    
+    def __eq__(self, other) -> bool:
+        """Deux transactions sont égales si elles ont le même ID"""
+        if not isinstance(other, Transaction):
+            return False
+        return self.id == other.id
 
