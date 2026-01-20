@@ -57,4 +57,8 @@ class TransactionRepository:
     def get(self, transaction_id: int) -> Transaction:
         """Récupérer une transaction par son ID"""
         return self.transactions.get(transaction_id)
+    
+    def get_by_user(self, user_id: int) -> list:
+        """Récupérer toutes les transactions d'un utilisateur"""
+        return [trans for trans in self.transactions.values() if trans.user_id == user_id]
 
