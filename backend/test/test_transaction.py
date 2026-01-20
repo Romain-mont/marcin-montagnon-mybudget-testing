@@ -133,5 +133,23 @@ class TestTransactionCreation(unittest.TestCase):
         self.assertEqual(trans, trans)
 
 
+class TestTransactionRepository(unittest.TestCase):
+    """Tests pour la persistance des transactions"""    
+    def test_save_transaction(self):
+        """Sauvegarder une transaction dans la base de données"""
+        transaction = Transaction(
+            user_id=1,
+            date=date(2026, 1, 20),
+            amount=Decimal('100.00'),
+            category='Groceries',
+            type='DEPENSE'
+        )
+        
+        transaction_id = self.repo.save(transaction)
+        
+        self.assertIsNotNone(transaction_id)
+        self.assertEqual(transaction.id, transaction_id)
+
+
 if __name__ == '__main__':
     unittest.main()
