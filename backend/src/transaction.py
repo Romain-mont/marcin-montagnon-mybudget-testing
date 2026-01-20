@@ -42,3 +42,11 @@ class Transaction:
             return False
         return self.id == other.id
 
+
+class TransactionRepository:
+    """Repository pour persister les transactions"""
+    
+    def save(self, transaction: Transaction) -> int:
+        """Sauvegarder une transaction et retourner son ID"""
+        return transaction.id
+

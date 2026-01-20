@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 from decimal import Decimal
-from src.transaction import Transaction
+from src.transaction import Transaction, TransactionRepository
 
 
 class TestTransactionCreation(unittest.TestCase):
@@ -134,7 +134,12 @@ class TestTransactionCreation(unittest.TestCase):
 
 
 class TestTransactionRepository(unittest.TestCase):
-    """Tests pour la persistance des transactions"""    
+    """Tests pour la persistance des transactions"""
+    
+    def setUp(self):
+        """Préparation avant chaque test"""
+        self.repo = TransactionRepository()
+    
     def test_save_transaction(self):
         """Sauvegarder une transaction dans la base de données"""
         transaction = Transaction(
