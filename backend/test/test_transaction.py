@@ -79,6 +79,17 @@ class TestTransactionCreation(unittest.TestCase):
                 category='Test',
                 type='DEPENSE'
             )
+    
+    def test_amount_cannot_be_zero(self):
+        """Le montant ne peut pas être zéro"""
+        with self.assertRaises(ValueError):
+            Transaction(
+                user_id=1,
+                date=date.today(),
+                amount=Decimal('0.00'),
+                category='Test',
+                type='DEPENSE'
+            )
 
 
 if __name__ == '__main__':
