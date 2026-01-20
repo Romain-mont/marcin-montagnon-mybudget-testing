@@ -90,6 +90,22 @@ class TestTransactionCreation(unittest.TestCase):
                 category='Test',
                 type='DEPENSE'
             )
+    
+    def test_str_representation(self):
+        """RED: Représentation string lisible d'une transaction"""
+        transaction = Transaction(
+            user_id=1,
+            date=date(2026, 1, 6),
+            amount=Decimal('50.00'),
+            category='Alimentation',
+            type='DEPENSE'
+        )
+        
+        result = str(transaction)
+        self.assertIn('2026-01-06', result)
+        self.assertIn('DEPENSE', result)
+        self.assertIn('50.00', result)
+        self.assertIn('Alimentation', result)
 
 
 if __name__ == '__main__':
