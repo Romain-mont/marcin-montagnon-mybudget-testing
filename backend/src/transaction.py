@@ -31,4 +31,34 @@ class Transaction:
         self.category = category
         self.type = type
         self.description = description
+    
+    def __str__(self) -> str:
+        """Représentation lisible d'une transaction"""
+        return f"{self.date} - {self.type} - {self.amount} - {self.category}"
+    
+    def __eq__(self, other) -> bool:
+        """Deux transactions sont égales si elles ont le même ID"""
+        if not isinstance(other, Transaction):
+            return False
+        return self.id == other.id
+
+
+class TransactionRepository:
+    """Repository pour persister les transactions"""
+    
+    def __init__(self):
+        self.transactions = {}
+    
+    def save(self, transaction: Transaction) -> int:
+        """Sauvegarder une transaction et retourner son ID"""
+        self.transactions[transaction.id] = transaction
+        return transaction.id
+    
+    def get(self, transaction_id: int) -> Transaction:
+        """Récupérer une transaction par son ID"""
+        return self.transactions.get(transaction_id)
+    
+    def get_by_user(self, user_id: int) -> list:
+        """Récupérer toutes les transactions d'un utilisateur"""
+        return [trans for trans in self.transactions.values() if trans.user_id == user_id]
 

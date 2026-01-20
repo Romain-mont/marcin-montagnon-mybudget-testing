@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 from decimal import Decimal
-from src.transaction import Transaction
+from src.transaction import Transaction, TransactionRepository
 
 
 class TestTransactionCreation(unittest.TestCase):
@@ -79,6 +79,134 @@ class TestTransactionCreation(unittest.TestCase):
                 category='Test',
                 type='DEPENSE'
             )
+    
+    def test_amount_cannot_be_zero(self):
+        """Le montant ne peut pas être zéro"""
+        with self.assertRaises(ValueError):
+            Transaction(
+                user_id=1,
+                date=date.today(),
+                amount=Decimal('0.00'),
+                category='Test',
+                type='DEPENSE'
+            )
+    
+    def test_str_representation(self):
+        """Représentation string lisible d'une transaction"""
+        transaction = Transaction(
+            user_id=1,
+            date=date(2026, 1, 6),
+            amount=Decimal('50.00'),
+            category='Alimentation',
+            type='DEPENSE'
+        )
+        
+        result = str(transaction)
+        self.assertIn('2026-01-06', result)
+        self.assertIn('DEPENSE', result)
+        self.assertIn('50.00', result)
+        self.assertIn('Alimentation', result)
+    
+    def test_transaction_equality(self):
+        """Deux transactions sont égales si elles ont le même ID"""
+        trans = Transaction(
+            user_id=1,
+            date=date.today(),
+            amount=Decimal('50.00'),
+            category='Test',
+            type='DEPENSE'
+        )
+        
+        # Créer une deuxième transaction avec les mêmes données
+        trans2 = Transaction(
+            user_id=1,
+            date=date.today(),
+            amount=Decimal('50.00'),
+            category='Test',
+            type='DEPENSE'
+        )
+        
+        # Elles ne doivent pas être égales (IDs différents)
+        self.assertNotEqual(trans, trans2)
+        
+        # Une transaction est égale à elle-même
+        self.assertEqual(trans, trans)
+
+
+class TestTransactionRepository(unittest.TestCase):
+    """Tests pour la persistance des transactions"""
+    
+    def setUp(self):
+        """Préparation avant chaque test"""
+        self.repo = TransactionRepository()
+    
+    def test_save_transaction(self):
+        """Sauvegarder une transaction dans la base de données"""
+        transaction = Transaction(
+            user_id=1,
+            date=date(2026, 1, 20),
+            amount=Decimal('100.00'),
+            category='Groceries',
+            type='DEPENSE'
+        )
+        
+        transaction_id = self.repo.save(transaction)
+        
+        self.assertIsNotNone(transaction_id)
+        self.assertEqual(transaction.id, transaction_id)
+    
+    def test_get_transaction_by_id(self):
+        """Récupérer une transaction par son ID"""
+        transaction = Transaction(
+            user_id=1,
+            date=date(2026, 1, 20),
+            amount=Decimal('100.00'),
+            category='Groceries',
+            type='DEPENSE'
+        )
+        
+        self.repo.save(transaction)
+        retrieved = self.repo.get(transaction.id)
+        
+        self.assertIsNotNone(retrieved)
+        self.assertEqual(retrieved, transaction)
+    
+    def test_get_transactions_by_user(self):
+        """Lister toutes les transactions d'un utilisateur"""
+        trans1 = Transaction(
+            user_id=1,
+            date=date(2026, 1, 20),
+            amount=Decimal('50.00'),
+            category='Food',
+            type='DEPENSE'
+        )
+        
+        trans2 = Transaction(
+            user_id=1,
+            date=date(2026, 1, 21),
+            amount=Decimal('100.00'),
+            category='Transport',
+            type='DEPENSE'
+        )
+        
+        trans3 = Transaction(
+            user_id=2,
+            date=date(2026, 1, 20),
+            amount=Decimal('200.00'),
+            category='Salary',
+            type='REVENU'
+        )
+        
+        self.repo.save(trans1)
+        self.repo.save(trans2)
+        self.repo.save(trans3)
+        
+        user1_transactions = self.repo.get_by_user(1)
+        
+        self.assertEqual(len(user1_transactions), 2)
+        self.assertIn(trans1, user1_transactions)
+        self.assertIn(trans2, user1_transactions)
+        self.assertNotIn(trans3, user1_transactions)
 
 
 if __name__ == '__main__':
