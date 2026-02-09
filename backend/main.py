@@ -3,7 +3,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
+from datetime import datetime
+from decimal import Decimal
 from src.budget import add_budget, calculate_remaining_budget, calculate_budget_percentage, check_budget_alert
+from src.transaction import Transaction
 
 app = FastAPI()
 
@@ -20,6 +23,13 @@ class BudgetModel(BaseModel):
     category: str
     amount: float
     period: str
+
+class TransactionModel(BaseModel):
+    date: str
+    amount: float
+    category: str
+    type: str
+    label: str
 
 def get_db_connection():
     # On utilise un fichier budget.db local
@@ -111,6 +121,65 @@ def get_all_budgets_route():
                 "category": row[0], 
                 "amount": row[1],
                 "period": row[2]
+            })
+        return results
+    finally:
+        conn.close()
+
+
+@app.post("/transactions/")
+def create_transaction_route(api_data: TransactionModel):
+    try:
+        
+        new_transaction = Transaction(
+            user_id=1, 
+            date=datetime.strptime(api_data.date, "%Y-%m-%d").date(),
+            amount=Decimal(str(api_data.amount)),
+            category=api_data.category,
+            type=api_data.type,
+            description=api_data.label
+        )
+        
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO transactions (date, amount, category, type, label) VALUES (?, ?, ?, ?, ?)",
+            (
+                new_transaction.date.isoformat(), 
+                float(new_transaction.amount), 
+                new_transaction.category, 
+                new_transaction.type, 
+                new_transaction.description
+            )
+        )
+        conn.commit()
+        conn.close()
+        
+        return {"message": "Transaction ajoutée avec succès"}
+
+    except ValueError as e:
+        
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/transactions/")
+def get_all_transactions_route():
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT date, amount, category, type, label FROM transactions")
+        rows = cursor.fetchall()
+        
+        results = []
+        for row in rows:
+            results.append({
+                "date": row[0],
+                "amount": row[1],
+                "category": row[2],
+                "type": row[3],
+                "label": row[4]
             })
         return results
     finally:
