@@ -2,10 +2,17 @@ import { useState, useEffect } from "react";
 import BudgetCard from "./components/BudgetCard";
 import AddBudgetForm from "./components/AddBudgetForm"; 
 import AddTransactionForm from "./components/AddTransactionForm";
+import TransactionList from './components/TransactionList';
 
 function App() {
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  const refreshAll = () => {
+    fetchBudgets();
+    setRefreshKey(old => old + 1); 
+  };
 
   // On sort la fonction fetch pour pouvoir l'appeler depuis le formulaire
   const fetchBudgets = async () => {
@@ -42,8 +49,8 @@ function App() {
         </h1>
 
         {/* Le Formulaire d'ajout */}
-        <AddBudgetForm onBudgetAdded={fetchBudgets} />
-        <AddTransactionForm onTransactionAdded={fetchBudgets} />
+        <AddBudgetForm onBudgetAdded={refreshAll} />
+        <AddTransactionForm onTransactionAdded={refreshAll} />
 
         <div className="border-t border-gray-200 my-8"></div>
 
@@ -70,6 +77,11 @@ function App() {
             )}
           </div>
         )}
+
+        <div className="border-t border-gray-200 my-8"></div>
+
+        {/* Liste des transactions */}
+        <TransactionList refreshTrigger={refreshKey} />
       </div>
     </div>
   );

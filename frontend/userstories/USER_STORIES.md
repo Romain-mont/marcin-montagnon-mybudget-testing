@@ -13,3 +13,14 @@
 - [x] Frontend : La transaction s'affiche ou les budgets se mettent à jour après ajout
 - [x] Frontend : Gestion des erreurs (alerte si échec)
 ---
+
+## US 2 : Voir et filtrer les transactions
+**En tant qu’** utilisateur  
+**Je veux** consulter mes transactions avec un filtre simple  
+**Afin de** retrouver rapidement mes dépenses.
+
+### Critères d’acceptation
+- [ ] Liste/tableau de transactions visible
+- [ ] Filtrage possible par catégorie ou par période
+- [ ] Le filtre met à jour la liste instantanément
+- [ ] Si aucune transaction : message “Aucune transaction”
