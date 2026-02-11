@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import BudgetCard from "../BudgetCard"; // Vérifie que le chemin est bon
+import BudgetCard from "../BudgetCard"; 
 import { describe, it, expect } from "vitest";
 import React from "react";
 

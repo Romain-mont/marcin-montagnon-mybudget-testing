@@ -5,10 +5,9 @@ const AddBudgetForm = ({ onBudgetAdded }) => {
   const [amount, setAmount] = useState("");
   const [period, setPeriod] = useState("2026-01");
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prépare les données
     const payload = {
       category: category,
       amount: parseFloat(amount),
@@ -16,7 +15,6 @@ const AddBudgetForm = ({ onBudgetAdded }) => {
     };
 
     try {
-      // Envoie au backend
       const response = await fetch("http://127.0.0.1:8000/budgets/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,17 +22,18 @@ const AddBudgetForm = ({ onBudgetAdded }) => {
       });
 
       if (response.ok) {
-        // Reset du formulaire
         setCategory("");
         setAmount("");
-        // Notifie le parent pour recharger la liste
         if (onBudgetAdded) onBudgetAdded();
         alert("Budget ajouté avec succès !");
       } else {
-        alert("Erreur lors de l'ajout");
+        
+        const errorData = await response.json();
+        alert("Erreur : " + (errorData.detail || "Erreur inconnue"));
       }
     } catch (error) {
       console.error("Erreur:", error);
+      alert("Erreur de connexion au serveur");
     }
   };
 
