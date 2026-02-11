@@ -20,7 +20,8 @@
 **Afin de** retrouver rapidement mes dépenses.
 
 ### Critères d’acceptation
-- [ ] Liste/tableau de transactions visible
-- [ ] Filtrage possible par catégorie ou par période
-- [ ] Le filtre met à jour la liste instantanément
-- [ ] Si aucune transaction : message “Aucune transaction”
+### Critères d’acceptation
+- [x] Liste/tableau de transactions visible
+- [x] Filtrage possible par catégorie ou par période
+- [x] Le filtre met à jour la liste instantanément (Testé Front)
+- [x] Si aucune transaction : message “Aucune transaction”
