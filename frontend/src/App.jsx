@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import BudgetCard from "./components/BudgetCard";
-import AddBudgetForm from "./components/AddBudgetForm"; // <--- IMPORT
+import AddBudgetForm from "./components/AddBudgetForm"; 
+import AddTransactionForm from "./components/AddTransactionForm";
 
 function App() {
   const [budgets, setBudgets] = useState([]);
@@ -42,6 +43,7 @@ function App() {
 
         {/* Le Formulaire d'ajout */}
         <AddBudgetForm onBudgetAdded={fetchBudgets} />
+        <AddTransactionForm onTransactionAdded={fetchBudgets} />
 
         <div className="border-t border-gray-200 my-8"></div>
 
