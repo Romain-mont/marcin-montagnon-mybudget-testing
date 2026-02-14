@@ -8,6 +8,7 @@ function App() {
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [deletingBudgetKey, setDeletingBudgetKey] = useState(null);
   
   const refreshAll = () => {
     fetchBudgets();
@@ -41,6 +42,23 @@ function App() {
     fetchBudgets();
   }, []);
 
+  const handleDeleteBudget = async (category, period) => {
+    if (!category || !period) return;
+
+    const key = `${category}-${period}`;
+    setDeletingBudgetKey(key);
+    try {
+      await fetch(`http://127.0.0.1:8000/budgets/${category}/${period}`, {
+        method: "DELETE"
+      });
+      await fetchBudgets();
+    } catch (error) {
+      console.error("Erreur suppression budget:", error);
+    } finally {
+      setDeletingBudgetKey(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
@@ -64,10 +82,13 @@ function App() {
                 <BudgetCard
                   key={index}
                   category={budget.category}
+                  period={budget.period}
                   amount={budget.budget_amount}
                   spent={budget.budget_amount - budget.remaining}
                   percent={budget.percent_consumed}
                   alert={budget.alert}
+                  onDelete={handleDeleteBudget}
+                  isDeleting={deletingBudgetKey === `${budget.category}-${budget.period}`}
                 />
               ))
             ) : (

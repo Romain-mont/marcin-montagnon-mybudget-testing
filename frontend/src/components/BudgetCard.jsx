@@ -1,6 +1,15 @@
 import React from "react";
 
-const BudgetCard = ({ category, amount, spent, percent, alert }) => {
+const BudgetCard = ({
+  category,
+  amount,
+  spent,
+  percent,
+  alert,
+  period,
+  onDelete,
+  isDeleting
+}) => {
   const getColor = () => {
     if (percent >= 100) return "bg-red-600";
     if (percent >= 80) return "bg-orange-400";
@@ -11,11 +20,23 @@ const BudgetCard = ({ category, amount, spent, percent, alert }) => {
     <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold text-gray-800">{category}</h3>
-        {alert && (
-          <span className="bg-red-100 text-red-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded border border-red-400">
-            ⚠️ Attention
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {alert && (
+            <span className="bg-red-100 text-red-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded border border-red-400">
+              ⚠️ Attention
+            </span>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              onClick={() => onDelete(category, period)}
+              disabled={isDeleting}
+              className="text-red-600 hover:text-red-800 text-xs font-semibold disabled:opacity-50"
+            >
+              {isDeleting ? "Suppression..." : "Supprimer"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Montants */}
