@@ -1,4 +1,7 @@
 def add_budget(connection, category, amount, period):
+    if amount <= 0:
+        raise ValueError(f"Le montant du budget doit être positif, reçu: {amount}")
+    
     cursor = connection.cursor()
     sql = "INSERT INTO budgets (category, amount, period) VALUES (?, ?, ?)"
     cursor.execute(sql, (category, amount, period))

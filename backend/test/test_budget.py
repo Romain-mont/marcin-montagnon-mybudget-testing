@@ -72,10 +72,10 @@ class TestBudget(unittest.TestCase):
         percent = calculate_budget_percentage(self.conn, "Loisirs", "2026-03")
         self.assertEqual(percent, 50.0)
 
-    def test_calculate_percentage_division_zero(self):
-        # Cas 2 : Budget à 0 (pour éviter le crash)
-        add_budget(self.conn, "Vide", 0.0, "2026-03")
-        percent = calculate_budget_percentage(self.conn, "Vide", "2026-03")
+    def test_calculate_percentage_no_budget(self):
+        # Cas : Budget inexistant (pour éviter le crash)
+        # On n'ajoute aucun budget, on teste directement
+        percent = calculate_budget_percentage(self.conn, "Inexistant", "2026-03")
         self.assertEqual(percent, 0.0) 
     
     def test_check_budget_alert_threshold(self):
@@ -121,6 +121,22 @@ class TestBudget(unittest.TestCase):
         self.cursor.execute("SELECT COUNT(*) FROM budgets WHERE category='Loisirs' AND period='2026-02'")
         result = self.cursor.fetchone()
         self.assertEqual(result[0], 0)
+
+    def test_add_budget_negative_amount(self):
+        # Given : Un montant négatif
+        # When/Then : On doit avoir une ValueError
+        with self.assertRaises(ValueError) as context:
+            add_budget(self.conn, "Test", -100.0, "2026-02")
+        
+        self.assertIn("positif", str(context.exception))
+
+    def test_add_budget_zero_amount(self):
+        # Given : Un montant à zéro
+        # When/Then : On doit avoir une ValueError
+        with self.assertRaises(ValueError) as context:
+            add_budget(self.conn, "Test", 0.0, "2026-02")
+        
+        self.assertIn("positif", str(context.exception))
 
 if __name__ == '__main__':
     unittest.main()

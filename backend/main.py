@@ -68,6 +68,9 @@ def create_budget_route(budget: BudgetModel):
         # On appelle ta fonction logique existante
         add_budget(conn, budget.category, budget.amount, budget.period)
         return {"message": "Budget défini avec succès"}
+    except ValueError as e:
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         conn.close()
 
