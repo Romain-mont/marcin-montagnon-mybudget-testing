@@ -79,5 +79,22 @@ class TestTransactionAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("Le montant doit être positif", response.json()['detail'])
 
+    def test_delete_transaction_nominal(self):
+        """Cas passant : suppression d'une transaction existante"""
+        import sqlite3
+        conn = sqlite3.connect('budget.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO transactions (date, amount, category, type, label) VALUES (?, ?, ?, ?, ?)",
+            ("2026-01-20", 50.0, "Alimentation", "DEPENSE", "Supermarché")
+        )
+        transaction_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+
+        response = self.client.delete(f"/transactions/{transaction_id}")
+
+        self.assertIn(response.status_code, [200, 204])
+
 if __name__ == '__main__':
     unittest.main()
