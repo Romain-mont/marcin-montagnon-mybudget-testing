@@ -1,6 +1,6 @@
 import unittest
 import sqlite3
-from src.budget import add_budget, calculate_remaining_budget, calculate_budget_percentage, check_budget_alert
+from src.budget import add_budget, calculate_remaining_budget, calculate_budget_percentage, check_budget_alert, delete_budget
 
 class TestBudget(unittest.TestCase):
     
@@ -108,6 +108,19 @@ class TestBudget(unittest.TestCase):
         
         # Then : Pas de message
         self.assertIsNone(message)
+
+    def test_delete_budget(self):
+        # Given : un budget existant
+        add_budget(self.conn, "Loisirs", 50.0, "2026-02")
+
+        # When : suppression
+        deleted = delete_budget(self.conn, "Loisirs", "2026-02")
+
+        # Then : supprimé
+        self.assertTrue(deleted)
+        self.cursor.execute("SELECT COUNT(*) FROM budgets WHERE category='Loisirs' AND period='2026-02'")
+        result = self.cursor.fetchone()
+        self.assertEqual(result[0], 0)
 
 if __name__ == '__main__':
     unittest.main()
