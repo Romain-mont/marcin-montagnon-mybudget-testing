@@ -62,3 +62,7 @@ class TransactionRepository:
         """Récupérer toutes les transactions d'un utilisateur"""
         return [trans for trans in self.transactions.values() if trans.user_id == user_id]
 
+    def delete(self, transaction_id: int) -> bool:
+        """Supprimer une transaction par son ID"""
+        return self.transactions.pop(transaction_id, None) is not None
+
