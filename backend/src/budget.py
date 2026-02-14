@@ -5,6 +5,15 @@ def add_budget(connection, category, amount, period):
     connection.commit()
     return True
 
+def delete_budget(connection, category, period):
+    cursor = connection.cursor()
+    cursor.execute(
+        "DELETE FROM budgets WHERE category = ? AND period = ?",
+        (category, period)
+    )
+    connection.commit()
+    return cursor.rowcount > 0
+
 def calculate_remaining_budget(connection, category, period):
     cursor = connection.cursor()
     
