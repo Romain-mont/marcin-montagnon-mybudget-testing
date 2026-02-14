@@ -208,6 +208,22 @@ class TestTransactionRepository(unittest.TestCase):
         self.assertIn(trans2, user1_transactions)
         self.assertNotIn(trans3, user1_transactions)
 
+    def test_delete_transaction(self):
+        """Supprimer une transaction existante"""
+        trans = Transaction(
+            user_id=1,
+            date=date(2026, 1, 20),
+            amount=Decimal('50.00'),
+            category='Food',
+            type='DEPENSE'
+        )
+
+        self.repo.save(trans)
+        deleted = self.repo.delete(trans.id)
+
+        self.assertTrue(deleted)
+        self.assertIsNone(self.repo.get(trans.id))
+
 
 if __name__ == '__main__':
     unittest.main()
