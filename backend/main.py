@@ -184,3 +184,19 @@ def get_all_transactions_route():
         return results
     finally:
         conn.close()
+
+
+@app.delete("/transactions/{transaction_id}")
+def delete_transaction_route(transaction_id: int):
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Transaction introuvable")
+
+        return {"message": "Transaction supprimée"}
+    finally:
+        conn.close()
