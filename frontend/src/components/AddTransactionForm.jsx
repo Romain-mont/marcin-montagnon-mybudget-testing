@@ -10,11 +10,18 @@ const AddTransactionForm = ({ onTransactionAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const rawAmount = amount.trim();
+    const decimalPart = rawAmount.split('.')[1];
+    if (decimalPart && decimalPart.length > 2) {
+      alert("Le montant doit avoir au maximum 2 décimales.");
+      return;
+    }
     
     // On prépare les données pour l'API
     const payload = {
       label: label,
-      amount: parseFloat(amount),
+      amount: parseFloat(rawAmount),
       category: category,
       date: date,
       type: type

@@ -102,7 +102,10 @@ function App() {
         <div className="border-t border-gray-200 my-8"></div>
 
         {/* Liste des transactions */}
-        <TransactionList refreshTrigger={refreshKey} />
+        <TransactionList
+          refreshTrigger={refreshKey}
+          onTransactionDeleted={fetchBudgets}
+        />
       </div>
     </div>
   );

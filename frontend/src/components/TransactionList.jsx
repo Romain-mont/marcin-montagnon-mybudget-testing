@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const TransactionList = ({ refreshTrigger }) => {
+const TransactionList = ({ refreshTrigger, onTransactionDeleted }) => {
   const [transactions, setTransactions] = useState([]);
   const [filterCategory, setFilterCategory] = useState('');
   const [loading, setLoading] = useState(true);
@@ -34,6 +34,7 @@ const TransactionList = ({ refreshTrigger }) => {
         method: 'DELETE'
       });
       await fetchTransactions();
+      if (onTransactionDeleted) onTransactionDeleted();
     } catch (error) {
       console.error('Erreur suppression transaction:', error);
     } finally {
