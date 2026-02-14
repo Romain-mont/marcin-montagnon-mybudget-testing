@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -169,17 +168,18 @@ def get_all_transactions_route():
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT date, amount, category, type, label FROM transactions")
+        cursor.execute("SELECT id, date, amount, category, type, label FROM transactions")
         rows = cursor.fetchall()
         
         results = []
         for row in rows:
             results.append({
-                "date": row[0],
-                "amount": row[1],
-                "category": row[2],
-                "type": row[3],
-                "label": row[4]
+                "id": row[0],
+                "date": row[1],
+                "amount": row[2],
+                "category": row[3],
+                "type": row[4],
+                "label": row[5]
             })
         return results
     finally:
