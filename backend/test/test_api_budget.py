@@ -101,5 +101,16 @@ class TestBudgetAPI(unittest.TestCase):
         self.assertEqual(len(data), 2) 
         self.assertEqual(data[0]["category"], "Loisirs")
 
+    def test_delete_budget_nominal(self):
+        """Cas passant : suppression d'un budget existant"""
+        conn = sqlite3.connect('budget.db')
+        conn.execute("INSERT INTO budgets (category, amount, period) VALUES ('Loisirs', 50.0, '2026-01')")
+        conn.commit()
+        conn.close()
+
+        response = self.client.delete("/budgets/Loisirs/2026-01")
+
+        self.assertIn(response.status_code, [200, 204])
+
 if __name__ == '__main__':
     unittest.main()
