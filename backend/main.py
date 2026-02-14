@@ -126,6 +126,25 @@ def get_all_budgets_route():
         conn.close()
 
 
+@app.delete("/budgets/{category}/{period}")
+def delete_budget_route(category: str, period: str):
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "DELETE FROM budgets WHERE category = ? AND period = ?",
+            (category, period)
+        )
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Budget introuvable")
+
+        return {"message": "Budget supprimé"}
+    finally:
+        conn.close()
+
+
 @app.post("/transactions/")
 def create_transaction_route(api_data: TransactionModel):
     try:
