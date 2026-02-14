@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import BudgetCard from "../BudgetCard"; 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import React from "react";
 
 describe("BudgetCard Component", () => {
@@ -57,5 +57,27 @@ describe("BudgetCard Component", () => {
     expect(screen.getByText("Attention seuil critique")).toBeInTheDocument();
     // Vérifie la présence du petit badge jaune/rouge
     expect(screen.getByText("⚠️ Attention")).toBeInTheDocument();
+  });
+
+  it("appelle onDelete quand on clique sur Supprimer", () => {
+    const handleDelete = vi.fn();
+
+    render(
+      <BudgetCard
+        category="Transport"
+        amount={100}
+        spent={90}
+        percent={90}
+        alert={null}
+        period="2026-01"
+        onDelete={handleDelete}
+        isDeleting={false}
+      />,
+    );
+
+    const deleteButton = screen.getByRole("button", { name: "Supprimer" });
+    deleteButton.click();
+
+    expect(handleDelete).toHaveBeenCalledWith("Transport", "2026-01");
   });
 });
