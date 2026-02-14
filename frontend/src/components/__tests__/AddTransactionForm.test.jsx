@@ -81,4 +81,18 @@ describe('AddTransactionForm Component', () => {
         // 7. On vérifie le message de succès
         expect(global.alert).toHaveBeenCalledWith("Transaction ajoutée avec succès !");
     });
+
+    it('refuse un montant avec plus de 2 décimales', async () => {
+        render(<AddTransactionForm />);
+
+        fireEvent.change(screen.getByPlaceholderText('Ex: Courses Super U'), { target: { value: 'Cinéma' } });
+        fireEvent.change(screen.getByPlaceholderText('0.00'), { target: { value: '13.589' } });
+        fireEvent.change(screen.getByPlaceholderText('Ex: Alimentation'), { target: { value: 'Loisirs' } });
+
+        const button = screen.getByRole('button', { name: /Ajouter/i });
+        fireEvent.click(button);
+
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(global.alert).toHaveBeenCalledWith("Le montant doit avoir au maximum 2 décimales.");
+    });
 });
