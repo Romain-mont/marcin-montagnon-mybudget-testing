@@ -1,13 +1,13 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import TransactionList from '../TransactionList';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 
 // Données fictives pour le test
 const MOCK_TRANSACTIONS = [
-    { date: '2026-01-01', label: 'Cinéma', amount: 12.5, category: 'Loisirs', type: 'DEPENSE' },
-    { date: '2026-01-02', label: 'Salaire', amount: 2000, category: 'Travail', type: 'REVENU' },
-    { date: '2026-01-03', label: 'Courses', amount: 50, category: 'Alimentation', type: 'DEPENSE' }
+    { id: 1, date: '2026-01-01', label: 'Cinéma', amount: 12.5, category: 'Loisirs', type: 'DEPENSE' },
+    { id: 2, date: '2026-01-02', label: 'Salaire', amount: 2000, category: 'Travail', type: 'REVENU' },
+    { id: 3, date: '2026-01-03', label: 'Courses', amount: 50, category: 'Alimentation', type: 'DEPENSE' }
 ];
 
 // Mock de fetch
@@ -68,5 +68,40 @@ describe('TransactionList Component', () => {
         await waitFor(() => {
             expect(screen.getByText('Aucune transaction trouvée')).toBeInTheDocument();
         });
+    });
+
+    it('supprime une transaction et recharge la liste', async () => {
+        global.fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => MOCK_TRANSACTIONS,
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => MOCK_TRANSACTIONS,
+            });
+
+        render(<TransactionList />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Cinéma')).toBeInTheDocument();
+        });
+
+        const cinemaRow = screen.getByText('Cinéma').closest('tr');
+        const deleteButton = within(cinemaRow).getByRole('button', { name: 'Supprimer' });
+        fireEvent.click(deleteButton);
+
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                'http://127.0.0.1:8000/transactions/1/',
+                expect.objectContaining({ method: 'DELETE' })
+            );
+        });
+
+        expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/transactions/');
+        expect(global.fetch).toHaveBeenCalledTimes(3);
     });
 });
